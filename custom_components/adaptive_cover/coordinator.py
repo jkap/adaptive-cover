@@ -141,6 +141,7 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
         self._manual_toggle = None
         self._lux_toggle = None
         self._irradiance_toggle = None
+        self._distance_override: float | None = None
         self._start_time = None
         self._sun_end_time = None
         self._sun_start_time = None
@@ -689,8 +690,13 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
 
     def vertical_data(self, options):
         """Update data for vertical blinds."""
+        distance = (
+            self.distance_override
+            if self.distance_override is not None
+            else options.get(CONF_DISTANCE)
+        )
         return [
-            options.get(CONF_DISTANCE),
+            distance,
             options.get(CONF_HEIGHT_WIN),
         ]
 
@@ -809,6 +815,16 @@ class AdaptiveDataUpdateCoordinator(DataUpdateCoordinator[AdaptiveCoverData]):
     @irradiance_toggle.setter
     def irradiance_toggle(self, value):
         self._irradiance_toggle = value
+
+    @property
+    def distance_override(self) -> float | None:
+        """Get distance override value."""
+        return self._distance_override
+
+    @distance_override.setter
+    def distance_override(self, value: float | None) -> None:
+        """Set distance override value."""
+        self._distance_override = value
 
 
 class AdaptiveCoverManager:
